@@ -6,7 +6,7 @@ import * as THREE from "three"
 const debugMaterial = new THREE.MeshStandardMaterial()
 debugMaterial.color = { r: 1, g: 0, b: 1, isColor: true }
 
-function PieceSideMesh({ piece, meshName, geometry, material }) {
+function PieceSideMesh({ piece, meshName, geometry, material}) {
     return (
         <mesh
             name={meshName}
@@ -167,7 +167,7 @@ export function RubiksModel({ edges, corners, fixed }) {
             <group name="Scene">
                 {edgeMeshes.map((piece, i) => {
                     return (
-                        <a.group ref={edges[i].ref} {...edges[i].spring} name={`edge${i}`} key={i}>
+                        <group ref={edges[i].ref} quaternion={edges[i].quaternion} name={`edge${i}`} key={i}>
                             {piece.map((m, j) => {
                                 return (
                                     <PieceSideMesh
@@ -179,13 +179,13 @@ export function RubiksModel({ edges, corners, fixed }) {
                                     />
                                 )
                             })}
-                        </a.group>
+                        </group>
                     )
                 })}
 
                 {cornerMeshes.map((piece, i) => {
                     return (
-                        <a.group ref={corners[i].ref} {...corners[i].spring} name={`corner${i}`} key={i}>
+                        <a.group ref={corners[i].ref} quaternion={corners[i].quaternion} name={`corner${i}`} key={i}>
                             {piece.map((m, j) => {
                                 return (
                                     <PieceSideMesh
@@ -203,7 +203,7 @@ export function RubiksModel({ edges, corners, fixed }) {
 
                 {fixedMeshes.map((piece, i) => {
                     return (
-                        <a.group ref={fixed[i].ref} {...fixed[i].spring} name={`fixed${i}`} key={i}>
+                        <a.group ref={fixed[i].ref} quaternion={fixed[i].quaternion} name={`fixed${i}`} key={i}>
                             {piece.map((m, j) => {
                                 return (
                                     <PieceSideMesh

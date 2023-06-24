@@ -8,103 +8,186 @@ import { useSpring, a } from '@react-spring/three'
 import { getAllPiecesOnSide, rotateData } from './RubiksData'
 import { rotateCoordinateSystem, localAlignedwithWorld } from "./localWorldTransforms"
 
+const _Q = new THREE.Quaternion()
+
 export default function Experience() {
-    const edges = Array(12).fill().map(() => {
-        const [spring, api] = useSpring(() => ({ rotation: [0, 0, 0], config: { mass: 5, tension: 200 } }), []);
+    const edges = Array(12).fill().map((_, i) => {
+        const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
+        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
+        const [from, setFrom] = useState(new THREE.Quaternion())
+        const [to, setTo] = useState(new THREE.Quaternion())
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             spring,
             api,
-            arotation: [0, 0, 0],
             debug: debug,
             setDebug: setDebug,
-            worldAxes: { x: { axis: "x", dir: 1 }, y: { axis: "y", dir: 1 }, z: { axis: "z", dir: 1 } }
+            quaternion,
+            setQuaternion,
+            from,
+            setFrom,
+            to,
+            setTo,
+            id: `edge-${i}`
         }
     })
 
-    const corners = Array(8).fill().map(() => {
-        const [spring, api] = useSpring(() => ({ rotation: [0, 0, 0], config: { mass: 5, tension: 200 } }), []);
+    const corners = Array(8).fill().map((_, i) => {
+        const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
+        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
+        const [from, setFrom] = useState(new THREE.Quaternion())
+        const [to, setTo] = useState(new THREE.Quaternion())
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             spring,
             api,
-            arotation: [0, 0, 0],
             debug: debug,
             setDebug: setDebug,
-            worldAxes: { x: { axis: "x", dir: 1 }, y: { axis: "y", dir: 1 }, z: { axis: "z", dir: 1 } }
+            quaternion,
+            setQuaternion,
+            from,
+            setFrom,
+            to,
+            setTo,
+            id: `corner-${i}`
         }
     })
 
-    const fixed = Array(6).fill().map(() => {
-        const [spring, api] = useSpring(() => ({ rotation: [0, 0, 0], config: { mass: 5, tension: 200 } }), []);
+    const fixed = Array(6).fill().map((_, i) => {
+        const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
+        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
+        const [from, setFrom] = useState(new THREE.Quaternion())
+        const [to, setTo] = useState(new THREE.Quaternion())
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             spring,
             api,
-            arotation: [0, 0, 0],
             debug: debug,
             setDebug: setDebug,
-            worldAxes: { x: { axis: "x", dir: 1 }, y: { axis: "y", dir: 1 }, z: { axis: "z", dir: 1 } }
+            quaternion,
+            setQuaternion,
+            from,
+            setFrom,
+            to,
+            setTo,
+            id: `fixed-${i}`
         }
+    })
+
+
+    useFrame(() => {
+        [...edges, ...corners, ...fixed].forEach((edge, i) => {
+            if (edge.spring.t.animation.values.length) {
+                console.log(edge.spring.t)
+                edge.setQuaternion(prev => {
+                    let c = new THREE.Quaternion()
+                    c.copy(prev)
+                    return c.slerpQuaternions(edge.from, edge.to, edge.spring.t.animation.values[0]._value)
+                })
+            }
+        })
     })
 
     const [subscribeKeys, getKeys] = useKeyboardControls()
 
     const rotate = (piece, side, cw) => {
-        let worldAxis
-        let dir
+        let q = new THREE.Quaternion()
+
         if (side === "F") {
-            worldAxis = "z"
-            // dir = cw ? 1 : -1 // original
-            dir = cw ? -1 : 1
+            q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2)
         }
         else if (side === "U") {
-            worldAxis = "y"
-            dir = cw ? -1 : 1
+            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
         }
         else if (side === "B") {
-            worldAxis = "z"
-            // dir = cw ? -1 : 1 // original
-            dir = cw ? 1 : -1
+            q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2)
+            q.invert()
         }
         else if (side === "D") {
-            worldAxis = "y"
-            dir = cw ? 1 : -1
+            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
+            q.invert()
         }
         else if (side === "L") {
-            worldAxis = "x"
-            dir = cw ? 1 : -1
+            q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
+            q.invert()
         }
         else if (side === "R") {
-            worldAxis = "x"
-            dir = cw ? -1 : 1
+            q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
         }
 
-        const localAxis = localAlignedwithWorld(piece.worldAxes, worldAxis, dir)
-        console.log(localAxis)
-        let dir2 = localAxis.dir * (cw ? -1 : 1)
-        rotateCoordinateSystem(piece.worldAxes, localAxis.axis, dir2)
+        piece.setFrom(() => {
+            let c = new THREE.Quaternion()
+            c.copy(piece.ref.current.quaternion)
+            return c
+        })
 
-        if (localAxis.axis === "x") {
-            piece.arotation[0] -= dir2 * Math.PI / 2
-        }
-        if (localAxis.axis === "y") {
-            piece.arotation[1] -= dir2 * Math.PI / 2
-        }
-        if (localAxis.axis === "z") {
-            piece.arotation[2] -= dir2 * Math.PI / 2
-        }
+        piece.setTo(prev => {
+            let c = new THREE.Quaternion()
+            c.copy(prev)
+            c.premultiply(q) // world
+            // c.multiply(q) // local
+            return c
+        })
+        piece.api.start({ from: { t: 0 }, to: { t: 1 } })
+        // rotateData(side)
 
-        piece.api.start({ rotation: [...piece.arotation] })
-
-        rotateData(side)
     }
+
+    // const rotate = (piece, side, cw) => {
+    //     let worldAxis
+    //     let dir
+    //     if (side === "F") {
+    //         worldAxis = "z"
+    //         // dir = cw ? 1 : -1 // original
+    //         dir = cw ? -1 : 1
+    //     }
+    //     else if (side === "U") {
+    //         worldAxis = "y"
+    //         dir = cw ? -1 : 1
+    //     }
+    //     else if (side === "B") {
+    //         worldAxis = "z"
+    //         // dir = cw ? -1 : 1 // original
+    //         dir = cw ? 1 : -1
+    //     }
+    //     else if (side === "D") {
+    //         worldAxis = "y"
+    //         dir = cw ? 1 : -1
+    //     }
+    //     else if (side === "L") {
+    //         worldAxis = "x"
+    //         dir = cw ? 1 : -1
+    //     }
+    //     else if (side === "R") {
+    //         worldAxis = "x"
+    //         dir = cw ? -1 : 1
+    //     }
+
+    //     const localAxis = localAlignedwithWorld(piece.worldAxes, worldAxis, dir)
+    //     console.log(localAxis)
+    //     let dir2 = localAxis.dir * (cw ? -1 : 1)
+    //     rotateCoordinateSystem(piece.worldAxes, localAxis.axis, dir2)
+
+    //     if (localAxis.axis === "x") {
+    //         piece.arotation[0] -= dir2 * Math.PI / 2
+    //     }
+    //     if (localAxis.axis === "y") {
+    //         piece.arotation[1] -= dir2 * Math.PI / 2
+    //     }
+    //     if (localAxis.axis === "z") {
+    //         piece.arotation[2] -= dir2 * Math.PI / 2
+    //     }
+
+    //     piece.api.start({ rotation: [...piece.arotation] })
+
+    // rotateData(side)
+    // }
 
     let shiftdown = false
     useEffect(() => {
@@ -134,6 +217,7 @@ export default function Experience() {
                         sidePieces.forEach(piece => {
                             rotate(piece, side, true)
                         })
+                        rotateData(side, false)
                     }
                 }
             }
@@ -153,8 +237,8 @@ export default function Experience() {
         )
 
         return () => {
-            unsubscribeKeys
-            unsubscribeShiftKeys
+            unsubscribeKeys()
+            unsubscribeShiftKeys()
         }
     }, [])
 

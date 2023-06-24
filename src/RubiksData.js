@@ -55,7 +55,6 @@ export function rotateData(side, cw=true) {
         edgePieces[edgeT[1]] = edgePieces[edgeT[0]]
         edgePieces[edgeT[0]] = tmp
 
-
         const tmp2 = cornerPieces[cornerT[3]]
         cornerPieces[cornerT[3]] = cornerPieces[cornerT[2]]
         cornerPieces[cornerT[2]] = cornerPieces[cornerT[1]]
