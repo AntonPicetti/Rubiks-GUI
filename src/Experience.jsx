@@ -183,17 +183,17 @@ export default function Experience() {
             <GizmoViewport labelColor="black" />
         </GizmoHelper>
 
-        {/* <Stage
+        <Stage
             shadows={{ type: 'contact', opacity: 0.2, blur: 3 }}
             environment={null} // TODO: add environment and make sure it works on all devices.
             preset="portrait"
             intensity={1}
-        > */}
-        {/* <Float floatIntensity={5} rotationIntensity={1} floatingRange={[0, 0.4]}> */}
+        >
+        <Float floatIntensity={5} rotationIntensity={1} floatingRange={[0, 0.4]}>
         <RubiksModel edges={edges} corners={corners} fixed={fixed} />
 
-        {/* </Float> */}
-        <Environment files="./resting_place_1k.hdr" />
-        {/* </Stage> */}
+        </Float>
+        {/* <Environment files="./resting_place_1k.hdr" /> */}
+        </Stage>
     </>
 }
