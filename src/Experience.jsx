@@ -81,24 +81,27 @@ export default function Experience() {
 
         if (side === "F") {
             q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2)
+            if(!cw) q.invert()
         }
         else if (side === "U") {
             q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
+            if(!cw) q.invert()
         }
         else if (side === "B") {
             q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2)
-            q.invert()
+            if(cw) q.invert()
         }
         else if (side === "D") {
             q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
-            q.invert()
+            if(cw) q.invert()
         }
         else if (side === "L") {
             q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
-            q.invert()
+            if(cw) q.invert()
         }
         else if (side === "R") {
             q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
+            if(!cw) q.invert()
         }
 
         piece.from.copy(piece.to)
@@ -107,7 +110,8 @@ export default function Experience() {
         piece.api.start({ from: { t: 0 }, to: { t: 1 } })
     }
 
-    let shiftdown = false
+    let qDown = false
+    let shiftDown = false
     useEffect(() => {
         const unsubscribeKeys = subscribeKeys(
             (state) => state.F || state.U || state.B || state.D || state.L || state.R,
@@ -123,16 +127,15 @@ export default function Experience() {
                         ...sidePiecesIdx["fixed"].map(value => fixed[value]),
                     ]
 
-                    if (shiftdown) {
+                    if (qDown) {
                         sidePieces.forEach(piece => {
                             setDebug(piece, true)
                         })
-
                     }
 
                     else {
                         sidePieces.forEach(piece => {
-                            rotate(piece, side, true)
+                            rotate(piece, side, shiftDown)
                         })
                         rotateData(side, false)
                     }
@@ -140,10 +143,10 @@ export default function Experience() {
             }
         )
 
-        const unsubscribeShiftKeys = subscribeKeys(
-            (state) => state.Shift,
+        const unsubscribeQKey = subscribeKeys(
+            (state) => state.Q,
             (pressed) => {
-                shiftdown = pressed
+                qDown = pressed
 
                 if (!pressed) {
                     for (let i = 0; i < edges.length; i++) setDebug(edges[i], false)
@@ -153,9 +156,17 @@ export default function Experience() {
             }
         )
 
+        const unsubscribeShiftKey = subscribeKeys(
+            (state) => state.Shift,
+            (pressed) => {
+                shiftDown = pressed
+            }
+        )
+
         return () => {
             unsubscribeKeys()
-            unsubscribeShiftKeys()
+            unsubscribeQKey()
+            unsubscribeShiftKey()
         }
     }, [])
 

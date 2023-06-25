@@ -15,6 +15,7 @@ root.render(
             {name: 'D', keys: ['KeyD']},
             {name: 'L', keys: ['KeyL']},
             {name: 'R', keys: ['KeyR']},
+            {name: 'Q', keys: ['KeyQ']},
             {name: 'Shift', keys: ['Shift']}
         ]}
     >
