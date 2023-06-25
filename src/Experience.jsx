@@ -82,13 +82,13 @@ export default function Experience() {
 
 
     useFrame(() => {
-        [...edges, ...corners, ...fixed].forEach((edge, i) => {
-            if (edge.spring.t.animation.values.length) {
-                console.log(edge.spring.t)
-                edge.setQuaternion(prev => {
+        [...edges, ...corners, ...fixed].forEach((piece, i) => {
+            if (piece.spring.t.animation.values.length) {
+                console.log(piece.spring.t)
+                piece.setQuaternion(prev => {
                     let c = new THREE.Quaternion()
                     c.copy(prev)
-                    return c.slerpQuaternions(edge.from, edge.to, edge.spring.t.animation.values[0]._value)
+                    return c.slerpQuaternions(piece.from, piece.to, piece.spring.t.animation.values[0]._value)
                 })
             }
         })
@@ -134,7 +134,11 @@ export default function Experience() {
             // c.multiply(q) // local
             return c
         })
-        piece.api.start({ from: { t: 0 }, to: { t: 1 } })
+
+        setTimeout(() => {
+            piece.api.start({ from: { t: 0 }, to: { t: 1 } })
+
+        }, 500);
         // rotateData(side)
 
     }
