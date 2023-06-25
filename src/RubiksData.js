@@ -36,19 +36,6 @@ export function rotateData(side, cw=true) {
     const cornerT = sides["corners"][side]
 
     if (cw) {
-        const tmp = edgePieces[edgeT[0]]
-        edgePieces[edgeT[0]] = edgePieces[edgeT[1]]
-        edgePieces[edgeT[1]] = edgePieces[edgeT[2]]
-        edgePieces[edgeT[2]] = edgePieces[edgeT[3]]
-        edgePieces[edgeT[3]] = tmp
-
-        const tmp2 = cornerPieces[cornerT[0]]
-        cornerPieces[cornerT[0]] = cornerPieces[cornerT[1]]
-        cornerPieces[cornerT[1]] = cornerPieces[cornerT[2]]
-        cornerPieces[cornerT[2]] = cornerPieces[cornerT[3]]
-        cornerPieces[cornerT[3]] = tmp2
-    }
-    else {
         const tmp = edgePieces[edgeT[3]]
         edgePieces[edgeT[3]] = edgePieces[edgeT[2]]
         edgePieces[edgeT[2]] = edgePieces[edgeT[1]]
@@ -60,6 +47,19 @@ export function rotateData(side, cw=true) {
         cornerPieces[cornerT[2]] = cornerPieces[cornerT[1]]
         cornerPieces[cornerT[1]] = cornerPieces[cornerT[0]]
         cornerPieces[cornerT[0]] = tmp2
+    }
+    else {
+        const tmp = edgePieces[edgeT[0]]
+        edgePieces[edgeT[0]] = edgePieces[edgeT[1]]
+        edgePieces[edgeT[1]] = edgePieces[edgeT[2]]
+        edgePieces[edgeT[2]] = edgePieces[edgeT[3]]
+        edgePieces[edgeT[3]] = tmp
+
+        const tmp2 = cornerPieces[cornerT[0]]
+        cornerPieces[cornerT[0]] = cornerPieces[cornerT[1]]
+        cornerPieces[cornerT[1]] = cornerPieces[cornerT[2]]
+        cornerPieces[cornerT[2]] = cornerPieces[cornerT[3]]
+        cornerPieces[cornerT[3]] = tmp2
     }
 }
 

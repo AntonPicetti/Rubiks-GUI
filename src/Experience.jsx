@@ -1,12 +1,11 @@
 import { Perf } from 'r3f-perf'
-import { OrbitControls, useGLTF, Environment, Stage, GizmoHelper, GizmoViewport, Float, useKeyboardControls } from '@react-three/drei'
+import { OrbitControls, Environment, Stage, GizmoHelper, GizmoViewport, Float, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { RubiksModel, setDebug } from './RubiksModel'
 import * as THREE from "three"
-import { useRef, useEffect, useState } from 'react'
-import { useSpring, a } from '@react-spring/three'
+import { useRef, useEffect } from 'react'
+import { useSpring } from '@react-spring/three'
 import { getAllPiecesOnSide, rotateData } from './RubiksData'
-import { rotateCoordinateSystem, localAlignedwithWorld } from "./localWorldTransforms"
 
 export default function Experience() {
     const edges = Array(12).fill().map((_, i) => {
@@ -137,7 +136,7 @@ export default function Experience() {
                         sidePieces.forEach(piece => {
                             rotate(piece, side, shiftDown)
                         })
-                        rotateData(side, false)
+                        rotateData(side, shiftDown)
                     }
                 }
             }
