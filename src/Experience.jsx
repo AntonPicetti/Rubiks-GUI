@@ -8,75 +8,69 @@ import { useSpring, a } from '@react-spring/three'
 import { getAllPiecesOnSide, rotateData } from './RubiksData'
 import { rotateCoordinateSystem, localAlignedwithWorld } from "./localWorldTransforms"
 
-const _Q = new THREE.Quaternion()
-
 export default function Experience() {
     const edges = Array(12).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
-        const [from, setFrom] = useState(new THREE.Quaternion())
-        const [to, setTo] = useState(new THREE.Quaternion())
+        const quaternion =new THREE.Quaternion()
+        const from = new THREE.Quaternion()
+        const animFrom = new THREE.Quaternion()
+        const to = new THREE.Quaternion()
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
+            id: `edge-${i}`,
             spring,
             api,
             debug: debug,
             setDebug: setDebug,
             quaternion,
-            setQuaternion,
             from,
-            setFrom,
+            animFrom,
             to,
-            setTo,
-            id: `edge-${i}`
         }
     })
-
     const corners = Array(8).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
-        const [from, setFrom] = useState(new THREE.Quaternion())
-        const [to, setTo] = useState(new THREE.Quaternion())
+        const quaternion =new THREE.Quaternion()
+        const from = new THREE.Quaternion()
+        const animFrom = new THREE.Quaternion()
+        const to = new THREE.Quaternion()
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
+            id: `corner-${i}`,
             spring,
             api,
             debug: debug,
             setDebug: setDebug,
             quaternion,
-            setQuaternion,
             from,
-            setFrom,
+            animFrom,
             to,
-            setTo,
-            id: `corner-${i}`
         }
     })
 
     const fixed = Array(6).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const [quaternion, setQuaternion] = useState(new THREE.Quaternion())
-        const [from, setFrom] = useState(new THREE.Quaternion())
-        const [to, setTo] = useState(new THREE.Quaternion())
+        const quaternion =new THREE.Quaternion()
+        const from = new THREE.Quaternion()
+        const animFrom = new THREE.Quaternion()
+        const to = new THREE.Quaternion()
         const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
+            id: `fixed-${i}`,
             spring,
             api,
             debug: debug,
             setDebug: setDebug,
             quaternion,
-            setQuaternion,
             from,
-            setFrom,
+            animFrom,
             to,
-            setTo,
-            id: `fixed-${i}`
         }
     })
 
@@ -84,12 +78,7 @@ export default function Experience() {
     useFrame(() => {
         [...edges, ...corners, ...fixed].forEach((piece, i) => {
             if (piece.spring.t.animation.values.length) {
-                console.log(piece.spring.t)
-                piece.setQuaternion(prev => {
-                    let c = new THREE.Quaternion()
-                    c.copy(prev)
-                    return c.slerpQuaternions(piece.from, piece.to, piece.spring.t.animation.values[0]._value)
-                })
+                piece.ref.current.quaternion.slerpQuaternions(piece.animFrom, piece.to, piece.spring.t.animation.values[0]._value)
             }
         })
     })
@@ -121,26 +110,10 @@ export default function Experience() {
             q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
         }
 
-        piece.setFrom(() => {
-            let c = new THREE.Quaternion()
-            c.copy(piece.ref.current.quaternion)
-            return c
-        })
-
-        piece.setTo(prev => {
-            let c = new THREE.Quaternion()
-            c.copy(prev)
-            c.premultiply(q) // world
-            // c.multiply(q) // local
-            return c
-        })
-
-        setTimeout(() => {
-            piece.api.start({ from: { t: 0 }, to: { t: 1 } })
-
-        }, 500);
-        // rotateData(side)
-
+        piece.from.copy(piece.to)
+        piece.to.premultiply(q)
+        piece.animFrom.copy(piece.ref.current.quaternion)
+        piece.api.start({ from: { t: 0 }, to: { t: 1 } })
     }
 
     // const rotate = (piece, side, cw) => {
