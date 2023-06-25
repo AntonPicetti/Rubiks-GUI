@@ -1,7 +1,7 @@
 import { Perf } from 'r3f-perf'
 import { OrbitControls, useGLTF, Environment, Stage, GizmoHelper, GizmoViewport, Float, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { RubiksModel } from './RubiksModel'
+import { RubiksModel, setDebug } from './RubiksModel'
 import * as THREE from "three"
 import { useRef, useEffect, useState } from 'react'
 import { useSpring, a } from '@react-spring/three'
@@ -11,19 +11,16 @@ import { rotateCoordinateSystem, localAlignedwithWorld } from "./localWorldTrans
 export default function Experience() {
     const edges = Array(12).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const quaternion =new THREE.Quaternion()
+        const quaternion = new THREE.Quaternion()
         const from = new THREE.Quaternion()
         const animFrom = new THREE.Quaternion()
         const to = new THREE.Quaternion()
-        const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             id: `edge-${i}`,
             spring,
             api,
-            debug: debug,
-            setDebug: setDebug,
             quaternion,
             from,
             animFrom,
@@ -32,19 +29,16 @@ export default function Experience() {
     })
     const corners = Array(8).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const quaternion =new THREE.Quaternion()
+        const quaternion = new THREE.Quaternion()
         const from = new THREE.Quaternion()
         const animFrom = new THREE.Quaternion()
         const to = new THREE.Quaternion()
-        const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             id: `corner-${i}`,
             spring,
             api,
-            debug: debug,
-            setDebug: setDebug,
             quaternion,
             from,
             animFrom,
@@ -54,19 +48,16 @@ export default function Experience() {
 
     const fixed = Array(6).fill().map((_, i) => {
         const [spring, api] = useSpring(() => ({ t: 0, config: { mass: 5, tension: 200 } }), []);
-        const quaternion =new THREE.Quaternion()
+        const quaternion = new THREE.Quaternion()
         const from = new THREE.Quaternion()
         const animFrom = new THREE.Quaternion()
         const to = new THREE.Quaternion()
-        const [debug, setDebug] = useState(false)
 
         return {
             ref: useRef(),
             id: `fixed-${i}`,
             spring,
             api,
-            debug: debug,
-            setDebug: setDebug,
             quaternion,
             from,
             animFrom,
@@ -116,56 +107,6 @@ export default function Experience() {
         piece.api.start({ from: { t: 0 }, to: { t: 1 } })
     }
 
-    // const rotate = (piece, side, cw) => {
-    //     let worldAxis
-    //     let dir
-    //     if (side === "F") {
-    //         worldAxis = "z"
-    //         // dir = cw ? 1 : -1 // original
-    //         dir = cw ? -1 : 1
-    //     }
-    //     else if (side === "U") {
-    //         worldAxis = "y"
-    //         dir = cw ? -1 : 1
-    //     }
-    //     else if (side === "B") {
-    //         worldAxis = "z"
-    //         // dir = cw ? -1 : 1 // original
-    //         dir = cw ? 1 : -1
-    //     }
-    //     else if (side === "D") {
-    //         worldAxis = "y"
-    //         dir = cw ? 1 : -1
-    //     }
-    //     else if (side === "L") {
-    //         worldAxis = "x"
-    //         dir = cw ? 1 : -1
-    //     }
-    //     else if (side === "R") {
-    //         worldAxis = "x"
-    //         dir = cw ? -1 : 1
-    //     }
-
-    //     const localAxis = localAlignedwithWorld(piece.worldAxes, worldAxis, dir)
-    //     console.log(localAxis)
-    //     let dir2 = localAxis.dir * (cw ? -1 : 1)
-    //     rotateCoordinateSystem(piece.worldAxes, localAxis.axis, dir2)
-
-    //     if (localAxis.axis === "x") {
-    //         piece.arotation[0] -= dir2 * Math.PI / 2
-    //     }
-    //     if (localAxis.axis === "y") {
-    //         piece.arotation[1] -= dir2 * Math.PI / 2
-    //     }
-    //     if (localAxis.axis === "z") {
-    //         piece.arotation[2] -= dir2 * Math.PI / 2
-    //     }
-
-    //     piece.api.start({ rotation: [...piece.arotation] })
-
-    // rotateData(side)
-    // }
-
     let shiftdown = false
     useEffect(() => {
         const unsubscribeKeys = subscribeKeys(
@@ -184,8 +125,7 @@ export default function Experience() {
 
                     if (shiftdown) {
                         sidePieces.forEach(piece => {
-                            piece.setDebug(true)
-                            // setTimeout(() => { piece.setDebug(false) }, 1000)
+                            setDebug(piece, true)
                         })
 
                     }
@@ -206,9 +146,9 @@ export default function Experience() {
                 shiftdown = pressed
 
                 if (!pressed) {
-                    for (let i = 0; i < edges.length; i++) edges[i].setDebug(false)
-                    for (let i = 0; i < corners.length; i++) corners[i].setDebug(false)
-                    for (let i = 0; i < fixed.length; i++) fixed[i].setDebug(false)
+                    for (let i = 0; i < edges.length; i++) setDebug(edges[i], false)
+                    for (let i = 0; i < corners.length; i++) setDebug(corners[i], false)
+                    for (let i = 0; i < fixed.length; i++) setDebug(fixed[i], false)
                 }
             }
         )

@@ -5,8 +5,22 @@ import * as THREE from "three"
 
 const debugMaterial = new THREE.MeshStandardMaterial()
 debugMaterial.color = { r: 1, g: 0, b: 1, isColor: true }
+let blackMaterial
 
-function PieceSideMesh({ piece, meshName, geometry, material}) {
+export function setDebug(piece, debug) {
+    piece.ref.current.traverse((object) => {
+        if(object.isMesh && object.material.uuid !== blackMaterial.uuid){
+            if(debug){
+                object.material = debugMaterial
+            }
+            else {
+                object.material = object.userData.originalMaterial
+            }
+        }
+    })
+}
+
+function PieceSideMesh({ piece, meshName, geometry, material }) {
     return (
         <mesh
             name={meshName}
@@ -14,12 +28,14 @@ function PieceSideMesh({ piece, meshName, geometry, material}) {
             receiveShadow
             geometry={geometry}
             material={piece.debug ? debugMaterial : material}
+            userData={{originalMaterial: material}}
         />
     )
 }
 
 export function RubiksModel({ edges, corners, fixed }) {
     const { nodes, materials } = useGLTF("/rubiks-with-correct-names3.glb");
+    blackMaterial = materials.Black
 
     const edgeMeshes = [
         [ // 0
