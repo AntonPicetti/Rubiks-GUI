@@ -134,9 +134,9 @@ export default function Experience() {
 
                     else {
                         sidePieces.forEach(piece => {
-                            rotate(piece, side, shiftDown)
+                            rotate(piece, side, !shiftDown)
                         })
-                        rotateData(side, shiftDown)
+                        rotateData(side, !shiftDown)
                     }
                 }
             }
