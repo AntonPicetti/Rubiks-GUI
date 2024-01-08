@@ -5,6 +5,7 @@ import * as THREE from "three"
 
 const debugMaterial = new THREE.MeshStandardMaterial()
 debugMaterial.color = { r: 1, g: 0, b: 1, isColor: true }
+
 let blackMaterial
 
 export function setDebug(piece, debug) {
@@ -177,6 +178,40 @@ export function RubiksModel({ edges, corners, fixed }) {
             { meshName: "Mesh_26", geometry: nodes.Mesh_26.geometry, material: materials.White },
         ],
     ]
+
+    function bw() {
+        const grayMaterial = new THREE.MeshStandardMaterial()
+        grayMaterial.color = { r: 0.2, g: 0.2, b: 0.2, isColor: true }
+
+        const whiteMaterial = new THREE.MeshStandardMaterial()
+        whiteMaterial.color = { r: 1, g: 1, b: 1, isColor: true }
+        
+        edgeMeshes.forEach((piece, i) => {
+            piece.forEach((m, j) => {
+                if(m.material !== materials.Black){
+                    m.material = grayMaterial;
+                }
+            })
+        })
+
+        cornerMeshes.forEach((piece, i) => {
+            piece.forEach((m, j) => {
+                if(m.material !== materials.Black){
+                    m.material = grayMaterial;
+                }
+            })
+        })
+
+        fixedMeshes.forEach((piece, i) => {
+            piece.forEach((m, j) => {
+                if(m.material !== materials.Black){
+                    m.material = grayMaterial;
+                }
+            })
+        })
+
+        edgeMeshes[1][1].material = whiteMaterial
+    }
 
     return (
         <group dispose={null}>
