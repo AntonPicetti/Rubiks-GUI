@@ -67,40 +67,16 @@ export function rotateData(side, cw = true) {
     cornerPieces[cornerT[3]] = tmp2;
   }
 
-  switch (side) {
-    case "F":
-      F();
-      F();
-      F();
-      break;
-    case "U":
-      U();
-      U();
-      U();
-      break;
-    case "B":
-      B();
-      B();
-      B();
-      break;
-    case "D":
-      D();
-      D();
-      D();
-      break;
-    case "L":
-      L();
-      L();
-      L();
-      break;
-    case "R":
-      R();
-      R();
-      R();
-      break;
-    default:
-      break;
+  // Update 2d visualization.
+  const actions = { F, U, B, D, L, R }; 
+  if (cw) {
+      for (let i = 0; i < 3; i++) {
+        actions[side]?.();
+      }
+  } else {
+    actions[side]?.();
   }
+
   update(sides);
 }
 

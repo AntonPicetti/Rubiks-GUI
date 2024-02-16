@@ -36,8 +36,8 @@ body {
 
 #vis2d {
     position: absolute;
-    top: 1100px;
-    left: 100px;
+    top: 100px;
+    left: 1200px;
     width: calc(12 * 64px);
     height: calc(9 * 64px);
     background: pink;
