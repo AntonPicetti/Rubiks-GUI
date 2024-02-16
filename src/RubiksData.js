@@ -97,6 +97,10 @@ const sides = {
   R: [5, 5, 5, 5, 5, 5, 5, 5],
 };
 
+export function getSides() {
+  return sides;
+}
+
 const F = () => {
   const tmp = sides["F"][0];
   sides["F"][0] = sides["F"][1];

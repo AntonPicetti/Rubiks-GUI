@@ -13,7 +13,7 @@ import { RubiksModel, setDebug } from "./RubiksModel";
 import * as THREE from "three";
 import { useRef, useEffect } from "react";
 import { useSpring } from "@react-spring/three";
-import { getAllPiecesOnSide, rotateData } from "./RubiksData";
+import { getAllPiecesOnSide, getSides, rotateData } from "./RubiksData";
 import { useThree } from "@react-three/fiber";
 import { OrbitControls as OC } from "three/addons/controls/OrbitControls.js";
 
@@ -45,30 +45,38 @@ function CameraLogger() {
 export default function Experience() {
   const { gl, scene, camera } = useThree(); // 'gl' is the renderer
 
-  const saveImage = () => {
+  const saveImage = async () => {
     console.log("Saving image.");
     if (!gl) return;
     // Assuming 'scene' and 'camera' are accessible here
     gl.render(scene, camera);
-    gl.domElement.toBlob((blob) => {
-      // Blob handling code here
-      const formData = new FormData();
-      formData.append("image", blob, "scene.png"); // 'image' is the field name used by Multer on the backend
 
-      fetch("http://localhost:3000/upload", {
-        // Your server endpoint
+    const blob = await new Promise((resolve, reject) => {
+      gl.domElement.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Blob creation failed"));
+        }
+      }, "image/png");
+    });
+
+    const formData = new FormData();
+    formData.append("image", blob, "scene.png");
+
+    const sides = getSides();
+    formData.append("sides", JSON.stringify(sides));
+
+    try {
+      const response = await fetch("http://localhost:3000/upload", {
         method: "POST",
         body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Success:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-      // end of blob handling code
-    }, "image/png");
+      });
+      const data = await response.json();
+      console.log("Success:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
   document.body.saveImage = saveImage;
 
