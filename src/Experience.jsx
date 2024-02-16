@@ -43,6 +43,35 @@ function CameraLogger() {
 }
 
 export default function Experience() {
+  const { gl, scene, camera } = useThree(); // 'gl' is the renderer
+
+  const saveImage = () => {
+    console.log("Saving image.");
+    if (!gl) return;
+    // Assuming 'scene' and 'camera' are accessible here
+    gl.render(scene, camera);
+    gl.domElement.toBlob((blob) => {
+      // Blob handling code here
+      const formData = new FormData();
+      formData.append("image", blob, "scene.png"); // 'image' is the field name used by Multer on the backend
+
+      fetch("http://localhost:3000/upload", {
+        // Your server endpoint
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      // end of blob handling code
+    }, "image/png");
+  };
+  document.body.saveImage = saveImage;
+
   const edges = Array(12)
     .fill()
     .map((_, i) => {
@@ -195,7 +224,7 @@ export default function Experience() {
       }
     );
 
-    const foo = (side) => {
+    const foo = async (side) => {
       if (["F", "U", "B", "D", "L", "R"].indexOf(side) === -1) return;
 
       const sidePiecesIdx = getAllPiecesOnSide(side);
@@ -213,18 +242,19 @@ export default function Experience() {
     window.foo = foo;
     window.getAllPiecesOnSide = getAllPiecesOnSide;
 
-    const tenRandomMoves = () => {
+    const tenRandomMoves = async () => {
       const moves = ["F", "U", "B", "D", "L", "R"];
       for (let i = 0; i < 10; i++) {
         foo(moves[Math.floor(Math.random() * moves.length)]);
+        await document.body.saveImage();
       }
     };
     window.tenRandomMoves = tenRandomMoves;
 
     const logNormal = (mesh) => {
-        const quaternion = new THREE.Quaternion();
-        mesh.getWorldQuaternion(quaternion)
-        console.log(quaternion);
+      const quaternion = new THREE.Quaternion();
+      mesh.getWorldQuaternion(quaternion);
+      console.log(quaternion);
     };
     window.logNormal = logNormal;
 
