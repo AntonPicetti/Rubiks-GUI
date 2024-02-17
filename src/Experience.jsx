@@ -42,9 +42,8 @@ function CameraLogger() {
   camera.rotation.set(cameraRot._x, cameraRot._y, cameraRot._z);
 }
 
-export default function Experience() {
+function Saver() {
   const { gl, scene, camera } = useThree(); // 'gl' is the renderer
-
   const saveImage = async () => {
     console.log("Saving image.");
     if (!gl) return;
@@ -78,8 +77,10 @@ export default function Experience() {
       console.error("Error:", error);
     }
   };
-  document.body.saveImage = saveImage;
+  window.saveImage = saveImage;
+}
 
+export default function Experience() {
   const edges = Array(12)
     .fill()
     .map((_, i) => {
@@ -254,7 +255,7 @@ export default function Experience() {
       const moves = ["F", "U", "B", "D", "L", "R"];
       for (let i = 0; i < 10; i++) {
         foo(moves[Math.floor(Math.random() * moves.length)]);
-        await document.body.saveImage();
+        await window.saveImage();
       }
     };
     window.tenRandomMoves = tenRandomMoves;
@@ -302,6 +303,7 @@ export default function Experience() {
   return (
     <>
       {/* <CameraLogger /> */}
+      <Saver/>
       <color args={["#000000"]} attach="background" />
 
       {/* <Perf position="top-left" /> */}
