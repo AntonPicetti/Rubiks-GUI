@@ -165,7 +165,7 @@ export default function Experience() {
 
   const [subscribeKeys, getKeys] = useKeyboardControls();
 
-  const rotate = (piece, side, cw, useSpring = true) => {
+  const rotate = (piece, side, cw, rotationWithSpring = true) => {
     let q = new THREE.Quaternion();
 
     if (side === "F") {
@@ -188,7 +188,7 @@ export default function Experience() {
       if (!cw) q.invert();
     }
 
-    if (useSpring) {
+    if (rotationWithSpring) {
       piece.from.copy(piece.to);
       piece.to.premultiply(q);
       piece.animFrom.copy(piece.ref.current.quaternion);
