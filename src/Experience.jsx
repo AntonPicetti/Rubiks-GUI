@@ -328,7 +328,7 @@ export default function Experience() {
         <RubiksModel edges={edges} corners={corners} fixed={fixed} />
 
         {/*</Float>*/}
-        {/* <Environment files="./resting_place_1k.hdr" /> */}
+        <Environment files="./cobblestone_street_night_1k.hdr" background/>
       </Stage>
     </>
   );

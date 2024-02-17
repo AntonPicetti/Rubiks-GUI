@@ -3,8 +3,11 @@ import { useGLTF } from "@react-three/drei";
 import { useSpring, a } from '@react-spring/three'
 import * as THREE from "three"
 
-const debugMaterial = new THREE.MeshStandardMaterial()
-debugMaterial.color = { r: 1, g: 0, b: 1, isColor: true }
+// Without `toneMapped: false`, the color is a bit of when checking with
+// a color picker. This is because default tone mapping in three.js
+// is NoToneMapping, but react-three-fiber is using ACESFilmicToneMapping.
+// Source: https://stackoverflow.com/questions/75121435/meshbasicmaterial-renders-incorrect-input-color
+const debugMaterial = new THREE.MeshBasicMaterial({ color: 0xff00ff, toneMapped: false});
 
 let blackMaterial
 
