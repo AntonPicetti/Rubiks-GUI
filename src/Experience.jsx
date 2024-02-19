@@ -16,6 +16,7 @@ import { useSpring } from "@react-spring/three";
 import { getAllPiecesOnSide, getSides, rotateData } from "./RubiksData";
 import { useThree } from "@react-three/fiber";
 import { OrbitControls as OC } from "three/addons/controls/OrbitControls.js";
+import { MathUtils } from "three";
 
 const cameraPos = {
   x: -9.915287478471756,
@@ -40,6 +41,77 @@ function CameraLogger() {
   });
   camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
   camera.rotation.set(cameraRot._x, cameraRot._y, cameraRot._z);
+}
+
+function* angleGenerator() {
+  let angle = 0; // Angle in radians
+  const speed = 3; // Rotation speed in degrees
+
+  while (true) {
+    const angleDegrees = THREE.MathUtils.radToDeg(angle) % 360; // Convert angle to degrees
+
+    // Check if the angle is within the skip ranges
+    const skipRange = 15; // Skip range in degrees
+    const isSkipRange = [0, 90, 180, 270].some(degree => {
+      return angleDegrees >= (degree - skipRange) && angleDegrees <= (degree + skipRange);
+    });
+
+    if (!isSkipRange) {
+      yield angle; // Yield the current angle if it's not in a skip range
+    }
+
+    // Increment the angle for the next iteration
+    angle += THREE.MathUtils.degToRad(speed);
+
+    // Adjust for skip range
+    if (isSkipRange) {
+      // Find the closest skip range boundary and advance to just past it
+      const nextBoundary = [0, 90, 180, 270].reduce((acc, degree) => {
+        const lowerBound = degree - skipRange;
+        const upperBound = degree + skipRange;
+        if (angleDegrees >= lowerBound && angleDegrees <= upperBound) {
+          // Calculate next angle just outside the upper bound of the current skip range
+          const nextAngle = upperBound + 0.1; // Add a small value to ensure it's outside the range
+          return Math.min(acc, nextAngle);
+        }
+        return acc;
+      }, 360); // Default to 360 if not within any skip range
+
+      angle = THREE.MathUtils.degToRad(nextBoundary); // Update angle to just past the skip range
+    }
+  }
+}
+
+/*
+This component rotates the camera arount the target point and makes it look at the
+target point. It also adjusts the camera elevation based on a sine wave. Some ranges
+of angles are skipped to make sure that three sides of the cube are always visible.
+*/
+function CameraRotator() {
+  const { gl, scene, camera } = useThree(); // Assuming useThree is a hook from react-three-fiber or @react-three/fiber
+
+  const targetPosition = new THREE.Vector3(0, 0, 0); // The point to rotate around and look at
+  const radius = 20; // Distance from the target point
+  const heigthAmplitude = 4; // Amplitude of the heigth variation
+  const angleIter = angleGenerator(); // Create an instance of the generator
+
+  function rotateCamera() {
+    // Calculate the new camera position
+    // angle = adjustAngleForSkipRange(angle); // Adjust if in a skip range
+    const { value: angle } = angleIter.next(); // Get the next angle from the generator
+    camera.position.x = targetPosition.x + radius * Math.sin(angle);
+    camera.position.z = targetPosition.z + radius * Math.cos(angle);
+    camera.position.y =
+      targetPosition.y + 16 + heigthAmplitude * Math.sin(angle);
+    console.log(camera.position.y);
+    // Optional: Adjust camera.position.y if you want to change elevation
+
+    // Make the camera always look at the given global coordinate
+    camera.lookAt(targetPosition);
+
+    gl.render(scene, camera);
+  }
+  window.rotateCamera = rotateCamera;
 }
 
 function Saver() {
@@ -303,12 +375,13 @@ export default function Experience() {
   return (
     <>
       {/* <CameraLogger /> */}
-      <Saver/>
+      <Saver />
+      <CameraRotator />
       <color args={["#000000"]} attach="background" />
 
       {/* <Perf position="top-left" /> */}
 
-      <OrbitControls makeDefault />
+      {/* <OrbitControls makeDefault /> */}
 
       <GizmoHelper
         alignment="bottom-right" // widget alignment within scene
@@ -328,7 +401,7 @@ export default function Experience() {
         <RubiksModel edges={edges} corners={corners} fixed={fixed} />
 
         {/*</Float>*/}
-        <Environment files="./cobblestone_street_night_1k.hdr" background/>
+        <Environment files="./cobblestone_street_night_1k.hdr" background />
       </Stage>
     </>
   );
