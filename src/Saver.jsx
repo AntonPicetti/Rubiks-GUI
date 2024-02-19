@@ -4,7 +4,6 @@ import { getSides } from "./2d-visualization/2d-rubiks-data.js";
 export function Saver() {
   const { gl, scene, camera } = useThree(); // 'gl' is the renderer
   const saveImage = async () => {
-    console.log("Saving image.");
     if (!gl) return;
     // Assuming 'scene' and 'camera' are accessible here
     gl.render(scene, camera);
@@ -31,7 +30,6 @@ export function Saver() {
         body: formData,
       });
       const data = await response.json();
-      console.log("Success:", data);
     } catch (error) {
       console.error("Error:", error);
     }

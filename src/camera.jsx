@@ -9,7 +9,7 @@ const targetPosition = new THREE.Vector3(0, 0, 0); // The point to rotate around
 
 function calculateCameraPath() {
   // One visible sector in eeach quadrant.
-  const visibleSectorSize = degToRad(60);
+  const visibleSectorSize = degToRad(50);
 
   const poinstPerSector = 10;
   const radius = 25; // Distance from the target point

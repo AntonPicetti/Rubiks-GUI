@@ -16,7 +16,7 @@ const digit2Side = {
   3: "D",
   4: "L",
   5: "R",
-};
+}; 
 
 const colors = ["green", "yellow", "blue", "white", "red", "orange"];
 

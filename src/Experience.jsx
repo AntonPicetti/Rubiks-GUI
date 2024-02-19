@@ -5,7 +5,7 @@ import {
   GizmoViewport,
 } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { CameraRotator } from "./camera-path";
+import { CameraRotator, CameraPathVisualizerCurves } from "./camera";
 import { Saver } from "./Saver";
 import { Rubiks } from "./Rubiks/Rubiks";
 

@@ -129,6 +129,7 @@ export const Rubiks = () => {
   const randomMoves = async (n) => {
     const moves = ["F", "U", "B", "D", "L", "R"];
     for (let i = 0; i < n; i++) {
+      window.rotateCamera()
       rotateSide(moves[Math.floor(Math.random() * moves.length)], false, false);
       await window.saveImage();
     }
