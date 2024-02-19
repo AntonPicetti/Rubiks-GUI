@@ -16,9 +16,7 @@ import { useSpring } from "@react-spring/three";
 import { getAllPiecesOnSide, getSides, rotateData } from "./RubiksData";
 import { useThree } from "@react-three/fiber";
 import { OrbitControls as OC } from "three/addons/controls/OrbitControls.js";
-import { MathUtils, Line } from "three";
-import { BufferGeometry, LineBasicMaterial, Vector3 } from "three";
-import { degToRad } from "three/src/math/MathUtils";
+import { CameraRotator, CameraPathVisualizerPoints, CameraPathVisualizerCurves } from "./camera-path";
 
 const cameraPos = {
   x: -9.915287478471756,
@@ -34,10 +32,6 @@ const cameraRot = {
   _order: "XYZ",
 };
 
-let iterations = 0;
-
-const targetPosition = new THREE.Vector3(0, 0, 0); // The point to rotate around and look at
-
 function CameraLogger() {
   const { camera, gl } = useThree();
   const controls = new OC(camera, gl.domElement);
@@ -47,145 +41,6 @@ function CameraLogger() {
   });
   camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
   camera.rotation.set(cameraRot._x, cameraRot._y, cameraRot._z);
-}
-
-function* pointGenerator(camera) {
-  let angle = 0; // Angle in radians
-  const radius = 25; // Distance from the target point
-  const heigthAmplitude = 4; // Amplitude of the heigth variation
-  const speed = 3; // Rotation speed in degrees
-
-  while (true) {
-    const angleDegrees = THREE.MathUtils.radToDeg(angle) % 360; // Convert angle to degrees
-
-    // Check if the angle is within the skip ranges
-    const skipRange = 20; // Skip range in degrees
-    const isSkipRange = [0, 90, 180, 270].some((degree) => {
-      return (
-        angleDegrees >= degree - skipRange && angleDegrees <= degree + skipRange
-      );
-    });
-
-    if (!isSkipRange) {
-      let x = targetPosition.x + radius * Math.sin(angle);
-      let z = targetPosition.z + radius * Math.cos(angle);
-      // let y = targetPosition.y + 16 + heigthAmplitude * Math.sin(angle * 10);
-      let y = 0;
-      yield { x, y, z };
-    }
-
-    // Increment the angle for the next iteration
-    angle += THREE.MathUtils.degToRad(speed);
-
-    // Adjust for skip range
-    if (isSkipRange) {
-      // Find the closest skip range boundary and advance to just past it
-      const nextBoundary = [0, 90, 180, 270].reduce((acc, degree) => {
-        const lowerBound = degree - skipRange;
-        const upperBound = degree + skipRange;
-        if (angleDegrees >= lowerBound && angleDegrees <= upperBound) {
-          // Calculate next angle just outside the upper bound of the current skip range
-          const nextAngle = upperBound + 0.1; // Add a small value to ensure it's outside the range
-          return Math.min(acc, nextAngle);
-        }
-        return acc;
-      }, 360); // Default to 360 if not within any skip range
-
-      angle = THREE.MathUtils.degToRad(nextBoundary); // Update angle to just past the skip range
-    }
-  }
-}
-
-function f() {
-  // One visible sector in eeach quadrant.
-  const visibleSectorSize = degToRad(60);
-  const poinstPerSector = 10;
-  const radius = 25; // Distance from the target point
-  const heigthAmplitude = 4; // Amplitude of the heigth variation
-
-  const corners = [45, 135, 225, 315].map(degToRad);
-
-  const points = [];
-  // Generate all points.
-  for (let corner of corners) {
-    let start = corner - visibleSectorSize / 2;
-    let end = corner + visibleSectorSize / 2;
-    for (
-      let angle = start;
-      angle < end;
-      angle += (end - start) / poinstPerSector
-    ) {
-      let x = targetPosition.x + radius * Math.cos(angle);
-      let z = targetPosition.z + radius * Math.sin(angle);
-      let y = targetPosition.y + 16 + heigthAmplitude * Math.sin(angle * 10);
-      points.push(new Vector3(x, y, z));
-    }
-  }
-
-  return points;
-}
-
-/*
-This component rotates the camera arount the target point and makes it look at the
-target point. It also adjusts the camera elevation based on a sine wave. Some ranges
-of angles are skipped to make sure that three sides of the cube are always visible.
-*/
-function CameraRotator() {
-  const { gl, scene, camera } = useThree();
-
-  const points = f();
-  const pointsLen = points.length;
-  function rotateCamera() {
-    // Calculate the new camera position
-    const { x, y, z } = points[iterations++ % pointsLen];
-
-    camera.position.x = x;
-    camera.position.z = z;
-    camera.position.y = y;
-
-    // Make the camera always look at the given global coordinate
-    camera.lookAt(targetPosition);
-
-    gl.render(scene, camera);
-  }
-  window.rotateCamera = rotateCamera;
-}
-
-function CameraPathVisualizer() {
-  const { scene, camera } = useThree();
-  // const points = useMemo(() => {
-  //   const pathPoints = [];
-  //   const pointIter = pointGenerator(camera);
-  //   let result = pointIter.next();
-  //   while (!result.done) {
-  //     let { x, y, z } = result.value;
-  //     pathPoints.push(new THREE.Vector3(x, y, z));
-  //     result = pointIter.next();
-  //     if (pathPoints.length > 1000) {
-  //       break; // Prevent too many points
-  //     }
-  //   }
-  //   return pathPoints;
-  // }, []); // Empty dependency array means this only runs once
-  const points = f();
-
-  // Create the points geometry and material
-  const pointsGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  const pointsMaterial = new THREE.PointsMaterial({
-    color: 0xff0000,
-    size: 1.5,
-  });
-
-  // Add the points to the scene
-  useMemo(() => {
-    const pointsObject = new THREE.Points(pointsGeometry, pointsMaterial);
-    scene.add(pointsObject);
-    return () => {
-      scene.remove(pointsObject); // Cleanup the points from the scene when the component unmounts
-    };
-  }, [scene, pointsGeometry, pointsMaterial]);
-
-  return null; // This component does not render anything itself
 }
 
 function Saver() {
@@ -451,7 +306,7 @@ export default function Experience() {
       {/* <CameraLogger /> */}
       <Saver />
       <CameraRotator />
-      <CameraPathVisualizer />
+      <CameraPathVisualizerCurves />
       <color args={["#000000"]} attach="background" />
 
       {/* <Perf position="top-left" /> */}
