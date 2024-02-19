@@ -18,6 +18,7 @@ import { useThree } from "@react-three/fiber";
 import { OrbitControls as OC } from "three/addons/controls/OrbitControls.js";
 import { MathUtils, Line } from "three";
 import { BufferGeometry, LineBasicMaterial, Vector3 } from "three";
+import { degToRad } from "three/src/math/MathUtils";
 
 const cameraPos = {
   x: -9.915287478471756,
@@ -32,6 +33,8 @@ const cameraRot = {
   _z: -2.5240592653536598,
   _order: "XYZ",
 };
+
+let iterations = 0;
 
 const targetPosition = new THREE.Vector3(0, 0, 0); // The point to rotate around and look at
 
@@ -48,7 +51,7 @@ function CameraLogger() {
 
 function* pointGenerator(camera) {
   let angle = 0; // Angle in radians
-  const radius = 20; // Distance from the target point
+  const radius = 25; // Distance from the target point
   const heigthAmplitude = 4; // Amplitude of the heigth variation
   const speed = 3; // Rotation speed in degrees
 
@@ -56,7 +59,7 @@ function* pointGenerator(camera) {
     const angleDegrees = THREE.MathUtils.radToDeg(angle) % 360; // Convert angle to degrees
 
     // Check if the angle is within the skip ranges
-    const skipRange = 15; // Skip range in degrees
+    const skipRange = 20; // Skip range in degrees
     const isSkipRange = [0, 90, 180, 270].some((degree) => {
       return (
         angleDegrees >= degree - skipRange && angleDegrees <= degree + skipRange
@@ -65,9 +68,9 @@ function* pointGenerator(camera) {
 
     if (!isSkipRange) {
       let x = targetPosition.x + radius * Math.sin(angle);
-      let z = (camera.position.z = targetPosition.z + radius * Math.cos(angle));
-      let y = (camera.position.y =
-        targetPosition.y + 16 + heigthAmplitude * Math.sin(angle));
+      let z = targetPosition.z + radius * Math.cos(angle);
+      // let y = targetPosition.y + 16 + heigthAmplitude * Math.sin(angle * 10);
+      let y = 0;
       yield { x, y, z };
     }
 
@@ -93,22 +96,52 @@ function* pointGenerator(camera) {
   }
 }
 
+function f() {
+  // One visible sector in eeach quadrant.
+  const visibleSectorSize = degToRad(60);
+  const poinstPerSector = 10;
+  const radius = 25; // Distance from the target point
+  const heigthAmplitude = 4; // Amplitude of the heigth variation
+
+  const corners = [45, 135, 225, 315].map(degToRad);
+
+  const points = [];
+  // Generate all points.
+  for (let corner of corners) {
+    let start = corner - visibleSectorSize / 2;
+    let end = corner + visibleSectorSize / 2;
+    for (
+      let angle = start;
+      angle < end;
+      angle += (end - start) / poinstPerSector
+    ) {
+      let x = targetPosition.x + radius * Math.cos(angle);
+      let z = targetPosition.z + radius * Math.sin(angle);
+      let y = targetPosition.y + 16 + heigthAmplitude * Math.sin(angle * 10);
+      points.push(new Vector3(x, y, z));
+    }
+  }
+
+  return points;
+}
+
 /*
 This component rotates the camera arount the target point and makes it look at the
 target point. It also adjusts the camera elevation based on a sine wave. Some ranges
 of angles are skipped to make sure that three sides of the cube are always visible.
 */
 function CameraRotator() {
-  const { gl, scene, camera } = useThree(); // Assuming useThree is a hook from react-three-fiber or @react-three/fiber
+  const { gl, scene, camera } = useThree();
 
-  const pointIter = pointGenerator(camera); // Create an instance of the generator
-
+  const points = f();
+  const pointsLen = points.length;
   function rotateCamera() {
     // Calculate the new camera position
-    const point = pointIter.next(); // Get the next angle from the generator
-    camera.position.x = point.x;
-    camera.position.z = point.z;
-    camera.position.y = point.y;
+    const { x, y, z } = points[iterations++ % pointsLen];
+
+    camera.position.x = x;
+    camera.position.z = z;
+    camera.position.y = y;
 
     // Make the camera always look at the given global coordinate
     camera.lookAt(targetPosition);
@@ -120,24 +153,28 @@ function CameraRotator() {
 
 function CameraPathVisualizer() {
   const { scene, camera } = useThree();
-  const points = useMemo(() => {
-    const pathPoints = [];
-    const pointIter = pointGenerator(camera);
-    let result = pointIter.next();
-    while (!result.done) {
-      let { x, y, z } = result.value;
-      pathPoints.push(new THREE.Vector3(x, y, z));
-      result = pointIter.next();
-      if (pathPoints.length > 1000) {
-        break; // Prevent too many points
-      }
-    }
-    return pathPoints;
-  }, []); // Empty dependency array means this only runs once
+  // const points = useMemo(() => {
+  //   const pathPoints = [];
+  //   const pointIter = pointGenerator(camera);
+  //   let result = pointIter.next();
+  //   while (!result.done) {
+  //     let { x, y, z } = result.value;
+  //     pathPoints.push(new THREE.Vector3(x, y, z));
+  //     result = pointIter.next();
+  //     if (pathPoints.length > 1000) {
+  //       break; // Prevent too many points
+  //     }
+  //   }
+  //   return pathPoints;
+  // }, []); // Empty dependency array means this only runs once
+  const points = f();
 
   // Create the points geometry and material
   const pointsGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  const pointsMaterial = new THREE.PointsMaterial({ color: 0xff0000, size: 1.5 });
+  const pointsMaterial = new THREE.PointsMaterial({
+    color: 0xff0000,
+    size: 1.5,
+  });
 
   // Add the points to the scene
   useMemo(() => {
