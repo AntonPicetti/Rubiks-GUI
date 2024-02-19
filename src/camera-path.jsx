@@ -110,3 +110,12 @@ export function CameraPathVisualizerCurves() {
     material,
   ]);
 }
+
+export function CameraLogger() {
+  const { camera, gl } = useThree();
+  const controls = new OC(camera, gl.domElement);
+  controls.addEventListener("change", function () {
+    console.log("Camera Position:", camera.position);
+    console.log("Camera Rotation:", camera.rotation);
+  });
+}

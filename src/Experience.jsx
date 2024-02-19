@@ -1,11 +1,9 @@
-import { Perf } from "r3f-perf";
 import {
   OrbitControls,
   Environment,
   Stage,
   GizmoHelper,
   GizmoViewport,
-  Float,
   useKeyboardControls,
 } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
@@ -14,72 +12,8 @@ import * as THREE from "three";
 import { useRef, useEffect, useMemo } from "react";
 import { useSpring } from "@react-spring/three";
 import { getAllPiecesOnSide, getSides, rotateData } from "./RubiksData";
-import { useThree } from "@react-three/fiber";
-import { OrbitControls as OC } from "three/addons/controls/OrbitControls.js";
 import { CameraRotator, CameraPathVisualizerPoints, CameraPathVisualizerCurves } from "./camera-path";
-
-const cameraPos = {
-  x: -9.915287478471756,
-  y: 7.221840303237467,
-  z: -7.546472067564382,
-};
-
-const cameraRot = {
-  isEuler: true,
-  _x: -2.3193670651578024,
-  _y: -0.720444373328884,
-  _z: -2.5240592653536598,
-  _order: "XYZ",
-};
-
-function CameraLogger() {
-  const { camera, gl } = useThree();
-  const controls = new OC(camera, gl.domElement);
-  controls.addEventListener("change", function () {
-    console.log("Camera Position:", camera.position);
-    console.log("Camera Rotation:", camera.rotation);
-  });
-  camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
-  camera.rotation.set(cameraRot._x, cameraRot._y, cameraRot._z);
-}
-
-function Saver() {
-  const { gl, scene, camera } = useThree(); // 'gl' is the renderer
-  const saveImage = async () => {
-    console.log("Saving image.");
-    if (!gl) return;
-    // Assuming 'scene' and 'camera' are accessible here
-    gl.render(scene, camera);
-
-    const blob = await new Promise((resolve, reject) => {
-      gl.domElement.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("Blob creation failed"));
-        }
-      }, "image/png");
-    });
-
-    const formData = new FormData();
-    formData.append("image", blob, "scene.png");
-
-    const sides = getSides();
-    formData.append("sides", JSON.stringify(sides));
-
-    try {
-      const response = await fetch("http://localhost:3000/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      console.log("Success:", data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-  window.saveImage = saveImage;
-}
+import { Saver } from "./Saver";
 
 export default function Experience() {
   const edges = Array(12)
