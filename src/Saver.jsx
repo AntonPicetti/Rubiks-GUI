@@ -1,5 +1,5 @@
-import { getSides } from "./RubiksData";
 import { useThree } from "@react-three/fiber";
+import { getSides } from "./2d-visualization/2d-rubiks-data.js";
 
 export function Saver() {
   const { gl, scene, camera } = useThree(); // 'gl' is the renderer
