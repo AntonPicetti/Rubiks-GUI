@@ -5,3 +5,5 @@ image-server/uploads-normal/*
 image-server/uploads-segmented/*
 image-server/rescaled32.png
 image-server/rescaled64.png
+image-server/preprocessed/normal/*
+image-server/preprocessed/segmented/*

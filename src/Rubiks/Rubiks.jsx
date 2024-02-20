@@ -167,16 +167,26 @@ export const Rubiks = () => {
   }
   window.disableDebug = disableDebug;
 
-  async function foo() {
-    await randomMoves(1);
+  async function foo(n) {
+    const startTime = new Date().getTime();
+    for (let i = 0; i < n; i++) {
+      await randomMoves(1);
 
-    const filename = uuid4() + ".png";
+      const filename = uuid4() + ".png";
 
-    await window.saveImageNormal(filename);
+      await window.saveImageNormal(filename);
 
-    debugAll();
-    await window.saveImageSegmented(filename);
-    disableDebug();
+      debugAll();
+      await window.saveImageSegmented(filename);
+      disableDebug();
+
+      // Every 100th image, log the progress.
+      if (i % 100 === 0) {
+        console.log(i, (new Date().getTime() - startTime)/1000, "s");
+      }
+    }
+
+    console.log("done", (new Date().getTime() - startTime)/1000, "s");
   }
   window.foo = foo;
 
