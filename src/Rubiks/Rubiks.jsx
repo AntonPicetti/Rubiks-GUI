@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useSpring } from "@react-spring/three";
 import { getAllPiecesOnSide, rotateData } from "./RubiksData";
 import { KeyHandler } from "./KeyHandler";
+import uuid4 from "uuid4";
 
 export const Rubiks = () => {
   const edges = Array(12)
@@ -131,7 +132,7 @@ export const Rubiks = () => {
     for (let i = 0; i < n; i++) {
       window.rotateCamera()
       rotateSide(moves[Math.floor(Math.random() * moves.length)], false, false);
-      await window.saveImage();
+      // await window.saveImage();
     }
   };
   window.randomMoves = randomMoves;
@@ -152,11 +153,32 @@ export const Rubiks = () => {
     });
   }
 
+  function debugAll() {
+    for (let i = 0; i < edges.length; i++) setDebug(edges[i], true);
+    for (let i = 0; i < corners.length; i++) setDebug(corners[i], true);
+    for (let i = 0; i < fixed.length; i++) setDebug(fixed[i], true);
+  }
+  window.debugAll = debugAll;
+
   function disableDebug() {
     for (let i = 0; i < edges.length; i++) setDebug(edges[i], false);
     for (let i = 0; i < corners.length; i++) setDebug(corners[i], false);
     for (let i = 0; i < fixed.length; i++) setDebug(fixed[i], false);
   }
+  window.disableDebug = disableDebug;
+
+  async function foo() {
+    await randomMoves(1);
+
+    const filename = uuid4() + ".png";
+
+    await window.saveImageNormal(filename);
+
+    debugAll();
+    await window.saveImageSegmented(filename);
+    disableDebug();
+  }
+  window.foo = foo;
 
   return (
     <>

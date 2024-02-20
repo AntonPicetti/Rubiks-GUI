@@ -1,32 +1,21 @@
 import express from "express";
-import multer from "multer";
 import cors from "cors";
+import { standardUpload, normalUpload, segmentedUpload } from "./multer-storages.js";
 const app = express();
 
 // Enable CORS for all routes
 app.use(cors());
 
-// Configure storage for Multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Make sure this uploads directory exists
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname +
-        "-" +
-        Date.now() +
-        "." +
-        file.originalname.split(".").pop()
-    );
-  },
+
+app.post("/upload-normal-image", normalUpload.single("image"), (req, res) => {
+  res.json({ message: "Successfully uploaded " + req.file.originalname });
 });
 
-const upload = multer({ storage: storage });
+app.post("/upload-segmented-image", segmentedUpload.single("image"), (req, res) => {
+  res.json({ message: "Successfully uploaded " + req.file.originalname });
+});
 
-// Route to upload images
-app.post("/upload", upload.single("image"), (req, res) => {
+app.post("/upload", standardUpload.single("image"), (req, res) => {
   const sides = JSON.parse(req.body.sides);
   console.log(sides);
 
@@ -37,3 +26,4 @@ const port = 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+

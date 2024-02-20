@@ -1,3 +1,7 @@
 node_modules/
 
 image-server/uploads/*
+image-server/uploads-normal/*
+image-server/uploads-segmented/*
+image-server/rescaled32.png
+image-server/rescaled64.png
