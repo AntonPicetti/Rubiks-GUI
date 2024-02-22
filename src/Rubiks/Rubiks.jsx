@@ -167,7 +167,7 @@ export const Rubiks = () => {
   }
   window.disableDebug = disableDebug;
 
-  async function foo(n) {
+  async function generateSegmentationDataset(n) {
     const startTime = new Date().getTime();
     for (let i = 0; i < n; i++) {
       await randomMoves(1);
@@ -188,7 +188,7 @@ export const Rubiks = () => {
 
     console.log("done", (new Date().getTime() - startTime)/1000, "s");
   }
-  window.foo = foo;
+  window.generateSegmentationDataset = generateSegmentationDataset;
 
   return (
     <>
