@@ -40,10 +40,10 @@ offsets_F = {
     ("red", "green"): 6,
     ("orange", "green"): 2,
 
-    ("green", "yellow"): 0,
-    ("blue", "yellow"): 4,
-    ("red", "yellow"): 2,
-    ("orange", "yellow"): 6,
+    ("green", "yellow"): 4,
+    ("blue", "yellow"): 0,
+    ("red", "yellow"): 6,
+    ("orange", "yellow"): 2,
 
     ("yellow", "blue"): 4,
     ("white", "blue"): 0,
