@@ -31,7 +31,7 @@ offsets_U = {
     ("orange", "green"): 0,
     ("orange", "yellow"): 2,
     ("orange", "blue"): 4,
-    ("orange", "white"): 6,
+    ("orange", "white"): 6
 }
 
 offsets_F = {
@@ -101,5 +101,5 @@ offsets_L = {
     ("blue", "white"): 0,
     ("white", "green"): 2,
     ("green", "yellow"): 4,
-    ("yellow", "blue"): 6,
+    ("yellow", "blue"): 6
 }
