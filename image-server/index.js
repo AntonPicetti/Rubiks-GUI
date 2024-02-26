@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { standardUpload, normalUpload, segmentedUpload } from "./multer-storages.js";
+import { standardUpload, normalUpload, segmentedUpload, fixedClassificationUpload } from "./multer-storages.js";
 const app = express();
 
 // Enable CORS for all routes
@@ -12,6 +12,10 @@ app.post("/upload-normal-image", normalUpload.single("image"), (req, res) => {
 });
 
 app.post("/upload-segmented-image", segmentedUpload.single("image"), (req, res) => {
+  res.json({ message: "Successfully uploaded " + req.file.originalname });
+});
+
+app.post("/upload-fixed-classification-image", fixedClassificationUpload.single("image"), (req, res) => {
   res.json({ message: "Successfully uploaded " + req.file.originalname });
 });
 

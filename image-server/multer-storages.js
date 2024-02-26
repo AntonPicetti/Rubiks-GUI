@@ -42,3 +42,16 @@ const segmentedStorage = multer.diskStorage({
     },
 });
 export const segmentedUpload = multer({ storage: segmentedStorage });
+
+const fixedClassificationStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads-fixed-classification/"); // Make sure this uploads directory exists
+    },
+    filename: function (req, file, cb) {
+        cb(
+            null,
+            file.originalname
+        );
+    },
+});
+export const fixedClassificationUpload = multer({ storage: fixedClassificationStorage });

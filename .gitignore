@@ -7,3 +7,6 @@ image-server/rescaled32.png
 image-server/rescaled64.png
 image-server/preprocessed/normal/*
 image-server/preprocessed/segmented/*
+image-server/preprocessed/input-fixed/*
+image-server/preprocessed/normal-fixed/*
+image-server/preprocessed/labels-fixed/*

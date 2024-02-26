@@ -160,6 +160,11 @@ export const Rubiks = () => {
   }
   window.debugAll = debugAll;
 
+  function debugFixed() {
+    for (let i = 0; i < fixed.length; i++) setDebug(fixed[i], true);
+  }
+  window.debugFixed = debugFixed;
+
   function disableDebug() {
     for (let i = 0; i < edges.length; i++) setDebug(edges[i], false);
     for (let i = 0; i < corners.length; i++) setDebug(corners[i], false);
@@ -189,6 +194,29 @@ export const Rubiks = () => {
     console.log("done", (new Date().getTime() - startTime)/1000, "s");
   }
   window.generateSegmentationDataset = generateSegmentationDataset;
+
+  async function generateFixedClassificationDataset(n) {
+    const startTime = new Date().getTime();
+    for (let i = 0; i < n; i++) {
+      await randomMoves(1);
+
+      const filename = uuid4() + ".png";
+
+      await window.saveImageNormal(filename);
+
+      debugFixed();
+      await window.saveImageFixedClassification(filename);
+      disableDebug();
+
+      // Every 100th image, log the progress.
+      if (i % 100 === 0) {
+        console.log(i, (new Date().getTime() - startTime)/1000, "s");
+      }
+    }
+
+    console.log("done", (new Date().getTime() - startTime)/1000, "s");
+  }
+  window.generateFixedClassificationDataset = generateFixedClassificationDataset;
 
   return (
     <>

@@ -5,7 +5,6 @@ export function Saver() {
   const { gl, scene, camera } = useThree(); // 'gl' is the renderer
   const saveImage = async () => {
     if (!gl) return;
-    // Assuming 'scene' and 'camera' are accessible here
     gl.render(scene, camera);
 
     const blob = await new Promise((resolve, reject) => {
@@ -38,7 +37,6 @@ export function Saver() {
 
   const saveImageNormal = async (filename) => {
     if (!gl) return;
-    // Assuming 'scene' and 'camera' are accessible here
     gl.render(scene, camera);
 
     const blob = await new Promise((resolve, reject) => {
@@ -68,7 +66,6 @@ export function Saver() {
 
   const saveImageSegmented = async (filename) => {
     if (!gl) return;
-    // Assuming 'scene' and 'camera' are accessible here
     gl.render(scene, camera);
 
     const blob = await new Promise((resolve, reject) => {
@@ -95,4 +92,33 @@ export function Saver() {
     }
   };
   window.saveImageSegmented = saveImageSegmented;
+
+  const saveImageFixedClassification = async (filename) => {
+    if (!gl) return;
+    gl.render(scene, camera);
+
+    const blob = await new Promise((resolve, reject) => {
+      gl.domElement.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Blob creation failed"));
+        }
+      }, "image/png");
+    });
+
+    const formData = new FormData();
+    formData.append("image", blob, filename);
+
+    try {
+      const response = await fetch("http://localhost:3000/upload-fixed-classification-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  window.saveImageFixedClassification = saveImageFixedClassification;
 }
