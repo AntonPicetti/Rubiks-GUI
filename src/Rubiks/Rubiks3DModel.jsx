@@ -7,15 +7,38 @@ import * as THREE from "three"
 // a color picker. This is because default tone mapping in three.js
 // is NoToneMapping, but react-three-fiber is using ACESFilmicToneMapping.
 // Source: https://stackoverflow.com/questions/75121435/meshbasicmaterial-renders-incorrect-input-color
-const debugMaterial = new THREE.MeshBasicMaterial({ color: 0xff00ff, toneMapped: false});
+const debugMaterial = new THREE.MeshBasicMaterial({ color: 0xff00ff, toneMapped: false });
+
+const colorLabelMaterials = {
+    "green": new THREE.MeshBasicMaterial({ color: 0x00ff00, toneMapped: false }),
+    "yellow": new THREE.MeshBasicMaterial({ color: 0xffff00, toneMapped: false }),
+    "blue": new THREE.MeshBasicMaterial({ color: 0x0000ff, toneMapped: false }),
+    "white": new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }),
+    "red": new THREE.MeshBasicMaterial({ color: 0xff0000, toneMapped: false }),
+    "orange": new THREE.MeshBasicMaterial({ color: 0xffa500, toneMapped: false }),
+}
 
 let blackMaterial
 
 export function setDebug(piece, debug) {
     piece.ref.current.traverse((object) => {
-        if(object.isMesh && object.material.uuid !== blackMaterial.uuid){
-            if(debug){
+        if (object.isMesh && object.material.uuid !== blackMaterial.uuid) {
+            if (debug) {
                 object.material = debugMaterial
+            }
+            else {
+                object.material = object.userData.originalMaterial
+            }
+        }
+    })
+}
+
+export function setLabelMaterial(piece, labelMaterial) {
+    piece.ref.current.traverse((object) => {
+        if (object.isMesh && object.material.uuid !== blackMaterial.uuid) {
+            if (labelMaterial) {
+                let colorName = object.userData.originalMaterial.name.toLowerCase()
+                object.material = colorLabelMaterials[colorName]
             }
             else {
                 object.material = object.userData.originalMaterial
@@ -32,7 +55,7 @@ function PieceSideMesh({ piece, meshName, geometry, material }) {
             receiveShadow
             geometry={geometry}
             material={piece.debug ? debugMaterial : material}
-            userData={{originalMaterial: material}}
+            userData={{ originalMaterial: material }}
         />
     )
 }
@@ -188,10 +211,10 @@ export function RubiksModel({ edges, corners, fixed }) {
 
         const whiteMaterial = new THREE.MeshStandardMaterial()
         whiteMaterial.color = { r: 1, g: 1, b: 1, isColor: true }
-        
+
         edgeMeshes.forEach((piece, i) => {
             piece.forEach((m, j) => {
-                if(m.material !== materials.Black){
+                if (m.material !== materials.Black) {
                     m.material = grayMaterial;
                 }
             })
@@ -199,7 +222,7 @@ export function RubiksModel({ edges, corners, fixed }) {
 
         cornerMeshes.forEach((piece, i) => {
             piece.forEach((m, j) => {
-                if(m.material !== materials.Black){
+                if (m.material !== materials.Black) {
                     m.material = grayMaterial;
                 }
             })
@@ -207,7 +230,7 @@ export function RubiksModel({ edges, corners, fixed }) {
 
         fixedMeshes.forEach((piece, i) => {
             piece.forEach((m, j) => {
-                if(m.material !== materials.Black){
+                if (m.material !== materials.Black) {
                     m.material = grayMaterial;
                 }
             })

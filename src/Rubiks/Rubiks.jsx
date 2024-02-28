@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { RubiksModel, setDebug } from "./Rubiks3DModel";
+import { RubiksModel, setDebug, setLabelMaterial } from "./Rubiks3DModel";
 import * as THREE from "three";
 import { useRef } from "react";
 import { useSpring } from "@react-spring/three";
@@ -172,6 +172,20 @@ export const Rubiks = () => {
   }
   window.disableDebug = disableDebug;
 
+  function setLabelMaterialAll() {
+    for (let i = 0; i < edges.length; i++) setLabelMaterial(edges[i], true);
+    for (let i = 0; i < corners.length; i++) setLabelMaterial(corners[i], true);
+    for (let i = 0; i < fixed.length; i++) setLabelMaterial(fixed[i], true);
+  }
+  window.setLabelMaterialAll = setLabelMaterialAll;
+
+  function disableLabelMaterials() {
+    for (let i = 0; i < edges.length; i++) setLabelMaterial(edges[i], false);
+    for (let i = 0; i < corners.length; i++) setLabelMaterial(corners[i], false);
+    for (let i = 0; i < fixed.length; i++) setLabelMaterial(fixed[i], false);
+  }
+  window.disableLabelMaterials = disableLabelMaterials;
+
   async function generateSegmentationDataset(n) {
     const startTime = new Date().getTime();
     for (let i = 0; i < n; i++) {
@@ -187,11 +201,11 @@ export const Rubiks = () => {
 
       // Every 100th image, log the progress.
       if (i % 100 === 0) {
-        console.log(i, (new Date().getTime() - startTime)/1000, "s");
+        console.log(i, (new Date().getTime() - startTime) / 1000, "s");
       }
     }
 
-    console.log("done", (new Date().getTime() - startTime)/1000, "s");
+    console.log("done", (new Date().getTime() - startTime) / 1000, "s");
   }
   window.generateSegmentationDataset = generateSegmentationDataset;
 
@@ -210,13 +224,36 @@ export const Rubiks = () => {
 
       // Every 100th image, log the progress.
       if (i % 100 === 0) {
-        console.log(i, (new Date().getTime() - startTime)/1000, "s");
+        console.log(i, (new Date().getTime() - startTime) / 1000, "s");
       }
     }
 
-    console.log("done", (new Date().getTime() - startTime)/1000, "s");
+    console.log("done", (new Date().getTime() - startTime) / 1000, "s");
   }
   window.generateFixedClassificationDataset = generateFixedClassificationDataset;
+
+  async function generateColorDataset(n) {
+    const startTime = new Date().getTime();
+    for (let i = 0; i < n; i++) {
+      await randomMoves(1);
+
+      const filename = uuid4() + ".png";
+
+      disableLabelMaterials();
+      await window.saveImageNormal(filename);
+
+      setLabelMaterialAll();
+      await window.saveImageColorLabel(filename);
+
+      // Every 100th image, log the progress.
+      if (i % 100 === 0) {
+        console.log(i, (new Date().getTime() - startTime) / 1000, "s");
+      }
+    }
+
+    console.log("done", (new Date().getTime() - startTime) / 1000, "s");
+  }
+  window.generateColorDataset = generateColorDataset;
 
   return (
     <>

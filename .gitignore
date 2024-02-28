@@ -10,3 +10,4 @@ image-server/preprocessed/segmented/*
 image-server/preprocessed/input-fixed/*
 image-server/preprocessed/normal-fixed/*
 image-server/preprocessed/labels-fixed/*
+image-server/preprocessed/color-labels/*

@@ -55,3 +55,16 @@ const fixedClassificationStorage = multer.diskStorage({
     },
 });
 export const fixedClassificationUpload = multer({ storage: fixedClassificationStorage });
+
+const colorLabelStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads-color-labels/"); // Make sure this uploads directory exists
+    },
+    filename: function (req, file, cb) {
+        cb(
+            null,
+            file.originalname
+        );
+    },
+});
+export const colorLabelsUpload = multer({ storage: colorLabelStorage });
