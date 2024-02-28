@@ -33,6 +33,16 @@ export function setDebug(piece, debug) {
     })
 }
 
+export function setDebugMesh(mesh, debug) {
+    if (debug) {
+        console.log("Setting debug material")
+        mesh.material = debugMaterial
+    }
+    else {
+        mesh.material = mesh.userData.originalMaterial
+    }
+}
+
 export function setLabelMaterial(piece, labelMaterial) {
     piece.ref.current.traverse((object) => {
         if (object.isMesh && object.material.uuid !== blackMaterial.uuid) {

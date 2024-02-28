@@ -1,11 +1,12 @@
 import { useFrame } from "@react-three/fiber";
-import { RubiksModel, setDebug, setLabelMaterial } from "./Rubiks3DModel";
+import { RubiksModel, setDebug, setDebugMesh, setLabelMaterial } from "./Rubiks3DModel";
 import * as THREE from "three";
 import { useRef } from "react";
 import { useSpring } from "@react-spring/three";
 import { getAllPiecesOnSide, rotateData } from "./RubiksData";
 import { KeyHandler } from "./KeyHandler";
 import uuid4 from "uuid4";
+import { green_front_class_map } from "../camera-piece-map";
 
 export const Rubiks = () => {
   const edges = Array(12)
@@ -254,6 +255,37 @@ export const Rubiks = () => {
     console.log("done", (new Date().getTime() - startTime) / 1000, "s");
   }
   window.generateColorDataset = generateColorDataset;
+
+  async function generatePieceClassifierDataset(n) {
+    const delay = (ms) => {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    };
+
+    function getPiece(info) {
+      if (info.type === "edge") return edges[info.model_index];
+      if (info.type === "corner") return corners[info.model_index];
+      if (info.type === "fixed") return fixed[info.model_index];
+    }
+
+    for (let i = 0; i < 27; i++) {
+      disableDebug();
+      let square = green_front_class_map[i];
+      let piece = getPiece(square);
+
+      piece.ref.current.traverse((object) => {
+        if (object.isMesh) {
+          if (object.userData.originalMaterial.name.toLowerCase() === square.color) {
+            setDebugMesh(object, true);
+          }
+        };
+      });
+
+      await delay(500);
+    }
+
+  }
+  window.generatePieceClassifierDataset = generatePieceClassifierDataset;
+
 
   return (
     <>
