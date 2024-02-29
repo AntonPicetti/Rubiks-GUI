@@ -257,6 +257,10 @@ export const Rubiks = () => {
   window.generateColorDataset = generateColorDataset;
 
   async function generatePieceClassifierDataset(n) {
+    // You probably want to set quadrant to 1 as parameter to CameraRotator
+    // when using this function. This is because only meshes in the first quadrant
+    // are activated for now.
+
     const delay = (ms) => {
       return new Promise(resolve => setTimeout(resolve, ms));
     };
@@ -267,22 +271,34 @@ export const Rubiks = () => {
       if (info.type === "fixed") return fixed[info.model_index];
     }
 
-    for (let i = 0; i < 27; i++) {
-      disableDebug();
-      let square = green_front_class_map[i];
-      let piece = getPiece(square);
+    let imgIdx = 0;
+    const startTime = new Date().getTime();
+    for (let i = 0; i < n; i++) {
+      await window.rotateCamera();
+      for (let classIdx = 0; classIdx < 27; classIdx++) {
+        disableDebug();
+        let square = green_front_class_map[classIdx];
+        let piece = getPiece(square);
 
-      piece.ref.current.traverse((object) => {
-        if (object.isMesh) {
-          if (object.userData.originalMaterial.name.toLowerCase() === square.color) {
-            setDebugMesh(object, true);
-          }
-        };
-      });
+        piece.ref.current.traverse((object) => {
+          if (object.isMesh) {
+            if (object.userData.originalMaterial.name.toLowerCase() === square.color) {
+              setDebugMesh(object, true);
+            }
+          };
+        });
 
-      await delay(500);
+        const filename = uuid4() + ".png";
+        await window.saveImagePieceClassification(filename, classIdx);
+        imgIdx++;
+
+        // Every 100th image, log the progress.
+        if (imgIdx % 100 === 0) {
+          console.log(imgIdx, (new Date().getTime() - startTime) / 1000, "s");
+        }
+      }
     }
-
+    console.log("done", (new Date().getTime() - startTime) / 1000, "s");
   }
   window.generatePieceClassifierDataset = generatePieceClassifierDataset;
 

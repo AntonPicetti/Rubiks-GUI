@@ -7,15 +7,14 @@ import { degToRad } from "three/src/math/MathUtils";
 let iteration = 0;
 const targetPosition = new THREE.Vector3(0, 0, 0); // The point to rotate around and look at
 
-function calculateCameraPath() {
+function calculateCameraPath(poinstPerSector=10) {
   // One visible sector in eeach quadrant.
   const visibleSectorSize = degToRad(50);
 
-  const poinstPerSector = 10;
   const radius = 25; // Distance from the target point
   const heigthAmplitude = 4; // Amplitude of the heigth variation
   const corners = [45, 135, 225, 315].map(degToRad);
-
+console.log(poinstPerSector);
   const points = [];
   for (let corner of corners) {
     const segment = [];
@@ -42,10 +41,15 @@ This component rotates the camera arount the target point and makes it look at t
 target point. It also adjusts the camera elevation based on a sine wave. Some ranges
 of angles are skipped to make sure that three sides of the cube are always visible.
 */
-export function CameraRotator() {
+export function CameraRotator({quadrant}) {
   const { gl, scene, camera } = useThree();
 
-  const cameraPath = calculateCameraPath().flat();
+  let cameraPath;
+  if(quadrant)
+    cameraPath = calculateCameraPath(40)[quadrant];
+  else
+    cameraPath = calculateCameraPath().flat();
+
   const pointsLen = cameraPath.length;
   function rotateCamera() {
     const { x, y, z } = cameraPath[iteration++ % pointsLen];

@@ -35,7 +35,6 @@ export function setDebug(piece, debug) {
 
 export function setDebugMesh(mesh, debug) {
     if (debug) {
-        console.log("Setting debug material")
         mesh.material = debugMaterial
     }
     else {

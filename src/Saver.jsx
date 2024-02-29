@@ -151,4 +151,35 @@ export function Saver() {
   };
   window.saveImageColorLabel = saveImageColorLabel;
 
+
+  const saveImagePieceClassification = async (filename, classificationIndex) => {
+    if (!gl) return;
+    gl.render(scene, camera);
+
+    const blob = await new Promise((resolve, reject) => {
+      gl.domElement.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Blob creation failed"));
+        }
+      }, "image/png");
+    });
+
+    const formData = new FormData();
+    formData.append("image", blob, filename);
+    formData.append("label", JSON.stringify({classificationIndex}));
+    
+    try {
+      const response = await fetch("http://localhost:3000/upload-piece-classification", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  window.saveImagePieceClassification = saveImagePieceClassification;
+
 }
