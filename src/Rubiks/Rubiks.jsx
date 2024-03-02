@@ -276,10 +276,13 @@ export const Rubiks = () => {
     for (let i = 0; i < n; i++) {
       await window.rotateCamera();
       for (let classIdx = 0; classIdx < 27; classIdx++) {
+        const filename = uuid4() + ".png";
+
         disableDebug();
+        await window.saveImageNormal(filename);
+
         let square = green_front_class_map[classIdx];
         let piece = getPiece(square);
-
         piece.ref.current.traverse((object) => {
           if (object.isMesh) {
             if (object.userData.originalMaterial.name.toLowerCase() === square.color) {
@@ -288,7 +291,6 @@ export const Rubiks = () => {
           };
         });
 
-        const filename = uuid4() + ".png";
         await window.saveImagePieceClassification(filename, classIdx);
         imgIdx++;
 

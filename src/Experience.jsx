@@ -20,7 +20,7 @@ export default function Experience() {
     <>
       <color args={["#000000"]} attach="background" />
       <Saver />
-      <CameraRotator />
+      <CameraRotator quadrant={1}/>
       {/* <CameraPathVisualizerCurves /> */}
       <OrbitControls makeDefault />
       <AdjustExposure />

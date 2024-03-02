@@ -12,3 +12,4 @@ image-server/preprocessed/normal-fixed/*
 image-server/preprocessed/labels-fixed/*
 image-server/preprocessed/color-labels/*
 image-server/uploads-piece-classification/*
+image-server/preprocessed/piece-classification/*
